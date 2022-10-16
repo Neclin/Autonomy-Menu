@@ -49,7 +49,12 @@ class MenuManager:
         accountButton = AccountButton(screenWidth - padding - accountButtonRadius,
                                       padding + accountButtonRadius, accountButtonRadius, (160, 160, 160), 2, (0, 0, 0))
 
-        self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton]
+        dropdown = Dropdown(100, 100, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 1", self.font)
+        dropdown.addButton(100, 150, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 1", self.font, parent=dropdown)
+        dropdown.addButton(100, 200, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 2", self.font, parent=dropdown)
+        dropdown.addButton(100, 250, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 3", self.font, parent=dropdown)
+
+        self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton, dropdown]
 
 
 class Button:
@@ -81,11 +86,11 @@ class Button:
             text = self.font.render(self.text, True, (0, 0, 0))
             win.blit(text, (self.pos.x + self.width / 2 - text.get_width() / 2, self.pos.y + self.height / 2 - text.get_height() / 2))
 
-    def is_clicked(self, pos):
+    def isClicked(self, pos):
         return self.rect.collidepoint(pos)
 
 
-class AccountButton():
+class AccountButton:
     def __init__(self, x, y, radius, colour, borderWidth=None, borderColour=None, onCLick=None):
         self.pos = pygame.Vector2(x, y)
         self.radius = radius
@@ -105,5 +110,48 @@ class AccountButton():
             pygame.draw.circle(win, self.borderColour, (self.pos.x, self.pos.y), self.radius + self.borderWidth)
         pygame.draw.circle(win, self.colour, (self.pos.x, self.pos.y), self.radius)
 
-    def is_clicked(self, pos):
+    def isClicked(self, pos):
         return self.pos.distance_to(pos) < self.radius
+
+
+class Dropdown(Button):
+    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None):
+        super().__init__(x, y, width, height, colour, borderWidth, borderColour, text, font, lambda: self.toggleDropdown())
+        self.isOpen = False
+        self.buttons = []
+
+    def addButton(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+        button = DropdownOption(x, y,
+                                width, height,
+                                colour,
+                                borderWidth, borderColour,
+                                text, font,
+                                parent=parent)
+        self.buttons.append(button)
+
+    def show(self, win):
+        super().show(win)
+        if self.isOpen:
+            for button in self.buttons:
+                button.show(win)
+
+    def isClicked(self, pos):
+        return self.rect.collidepoint(pos)
+
+    def checkButtons(self, pos):
+        for button in self.buttons:
+            if button.isClicked(pos) and button.onClick:
+                button.onClick()
+
+    def toggleDropdown(self):
+        self.isOpen = not self.isOpen
+
+
+class DropdownOption(Button):
+    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+        super().__init__(x, y, width, height, colour, borderWidth, borderColour, text, font, self.selectOption)
+        self.parent = parent
+
+    def selectOption(self):
+        self.parent.text = self.text
+        self.parent.toggleDropdown()

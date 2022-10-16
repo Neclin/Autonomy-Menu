@@ -1,6 +1,6 @@
 import pygame
 
-from menus import MenuManager
+from menus import MenuManager, Dropdown
 
 pygame.init()
 
@@ -30,7 +30,10 @@ while run:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             for button in menu.buttons:
-                if button.is_clicked(pygame.mouse.get_pos()) and button.onClick:
+                if button.isClicked(pygame.mouse.get_pos()) and button.onClick:
                     button.onClick()
+
+                if isinstance(button, Dropdown):
+                    button.checkButtons(pygame.mouse.get_pos())
 
     update()
