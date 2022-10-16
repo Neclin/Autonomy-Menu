@@ -17,8 +17,8 @@ def update():
 
     for button in menu.buttons:
         button.show(win)
-    for scrollbar in menu.scrollbars:
-        scrollbar.show(win)
+    for container in menu.containers:
+        container.show(win)
 
     pygame.display.update()
 
@@ -43,9 +43,10 @@ while run:
 
                     if isinstance(button, Dropdown):
                         button.checkButtons(pos)
-                for scrollbar in menu.scrollbars:
-                    if scrollbar.isClicked(pos):
-                        activeScrollbar = scrollbar
+                for container in menu.containers:
+                    if container.scrollbar:
+                        if container.scrollbar.isClicked(pos):
+                            activeScrollbar = container.scrollbar
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
@@ -53,6 +54,5 @@ while run:
 
         if activeScrollbar:
             activeScrollbar.onDrag(pos)
-
 
     update()
