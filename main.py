@@ -8,7 +8,7 @@ win = pygame.display.set_mode((800, 800), pygame.NOFRAME)
 pygame.display.set_caption("Test")
 
 menu = MenuManager()
-menu.main_menu()
+menu.mainMenu()
 
 activeScrollbar = None
 

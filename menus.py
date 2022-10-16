@@ -1,4 +1,3 @@
-import time
 import pygame
 
 
@@ -14,7 +13,9 @@ class MenuManager:
         self.buttons = []
         self.containers = []
 
-    def main_menu(self):
+    def mainMenu(self):
+        self.buttons = []
+        self.containers = []
         screenWidth = 800
         screenHeight = 800
 
@@ -27,58 +28,124 @@ class MenuManager:
         padding = 10
         accountButtonRadius = 25
 
+        borderWidth = 2
+
         # colours
         buttonColour = (160, 160, 160)
         boarderColour = (0, 0, 0)
-        dropdownColour = (100, 100, 100)
-        containerColour = (100, 100, 100)
 
         heightOfButtons = (buttonHeight * numberOfButtons) + (buttonSpacing * (numberOfButtons - 1))
         buttonOffsetY = (screenHeight - heightOfButtons) // 2
 
         playButton = Button(screenWidth // 2 - buttonWidth // 2,
                             buttonOffsetY,
-                            buttonWidth, buttonHeight, buttonColour, 2, boarderColour, "Play", self.font)
+                            buttonWidth,
+                            buttonHeight,
+                            buttonColour,
+                            borderWidth,
+                            boarderColour,
+                            "Play",
+                            self.font)
 
         leaderboardButton = Button(screenWidth // 2 - buttonWidth // 2,
                                    buttonOffsetY + buttonHeight + buttonSpacing,
-                                   buttonWidth, buttonHeight, buttonColour, 2, boarderColour, "Leaderboard", self.font)
+                                   buttonWidth,
+                                   buttonHeight,
+                                   buttonColour,
+                                   borderWidth,
+                                   boarderColour,
+                                   "Leaderboard",
+                                   self.font,
+                                   onClick=self.leaderboard)
 
         settingsButton = Button(screenWidth // 2 - buttonWidth // 2,
                                 buttonOffsetY + (buttonHeight + buttonSpacing) * 2,
-                                buttonWidth, buttonHeight, buttonColour, 2, boarderColour, "Settings", self.font)
+                                buttonWidth,
+                                buttonHeight,
+                                buttonColour,
+                                borderWidth,
+                                boarderColour,
+                                "Settings",
+                                self.font)
 
         quitButton = Button(screenWidth // 2 - buttonWidth // 2,
                             buttonOffsetY + (buttonHeight + buttonSpacing) * 3,
-                            buttonWidth, buttonHeight, buttonColour, 2, boarderColour, "Quit", self.font,
-                            onCLick=quitGame)
+                            buttonWidth,
+                            buttonHeight,
+                            buttonColour,
+                            borderWidth,
+                            boarderColour,
+                            "Quit",
+                            self.font,
+                            onClick=quitGame)
 
         accountButton = AccountButton(screenWidth - padding - accountButtonRadius,
-                                      padding + accountButtonRadius, accountButtonRadius, (160, 160, 160), 2, boarderColour)
+                                      padding + accountButtonRadius,
+                                      accountButtonRadius,
+                                      buttonColour,
+                                      borderWidth,
+                                      boarderColour)
 
-        dropdown = Dropdown(100, 100, 150, 50, buttonColour, 2, boarderColour, "Option 1", self.font)
-        dropdown.addButton(0, 50, 150, 40, dropdownColour, 2, boarderColour, "Option 1", self.font, parent=dropdown)
-        dropdown.addButton(0, 90, 150, 40, dropdownColour, 2, boarderColour, "Option 2", self.font, parent=dropdown)
-        dropdown.addButton(0, 130, 150, 40, dropdownColour, 2, boarderColour, "Option 3", self.font, parent=dropdown)
+        self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton]
 
-        self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton, dropdown]
+        # dropdown = Dropdown(100, 100, 150, 50, buttonColour, 2, boarderColour, "Option 1", self.font)
+        # dropdown.addButton(0, 50, 150, 40, dropdownColour, 2, boarderColour, "Option 1", self.font, parent=dropdown)
+        # dropdown.addButton(0, 90, 150, 40, dropdownColour, 2, boarderColour, "Option 2", self.font, parent=dropdown)
+        # dropdown.addButton(0, 130, 150, 40, dropdownColour, 2, boarderColour, "Option 3", self.font, parent=dropdown)
+        #
 
-        testContainer = Container(100, 100, 300, 400, 300, 800, containerColour, 2, boarderColour)
-        for i in range(21):
-            testContainer.addButton(75, i * 50, 150, 40, buttonColour, 2, boarderColour, f"Button {i}", self.font, parent=testContainer)
+        #
+        # testContainer = Container(100, 100, 300, 400, 300, 800, containerColour, 2, boarderColour)
+        # for i in range(21):
+        #     testContainer.addButton(75, i * 50,
+        #     150, 40,
+        #     buttonColour,
+        #     borderWidth,
+        #     boarderColour,
+        #     f"Button {i}",
+        #     self.font,
+        #     parent=testContainer)
+        #
+        # coverContainer1 = Button(100, 0, 300, 98, (51, 51, 51), 0)
+        # coverContainer2 = Button(100, 502, 300, 98, (51, 51, 51), 0)
+        #
+        # self.buttons = [coverContainer1, coverContainer2]
+        # self.containers = [testContainer]
 
-        coverContainer1 = Button(100, 0, 300, 98, (51, 51, 51), 0)
-        coverContainer2 = Button(100, 502, 300, 98, (51, 51, 51), 0)
+    def leaderboard(self):
+        self.buttons = []
+        self.containers = []
+        screenWidth = 800
+        screenHeight = 800
 
-        self.buttons = [coverContainer1, coverContainer2]
-        self.containers = [testContainer]
+        # colours
+        buttonColour = (160, 160, 160)
+        boarderColour = (0, 0, 0)
+        borderWidth = 2
+        containerColour = (160, 160, 160)
+
+        levelSelectContainer = Container(0, 100,
+                                         screenWidth//2 + borderWidth//2,
+                                         screenHeight-100,
+                                         containerColour,
+                                         borderWidth,
+                                         boarderColour)
+        graphSelectContainer = Container(screenWidth//2 - borderWidth//2, 100,
+                                         screenWidth//2 + borderWidth//2,
+                                         screenHeight-100,
+                                         containerColour,
+                                         borderWidth,
+                                         boarderColour)
+
+        self.buttons = []
+        self.containers = [levelSelectContainer, graphSelectContainer]
 
 
 class Button:
     def __init__(self, x, y, width, height, colour,
                  borderWidth=None, borderColour=None,
                  text=None, font=None, textColour=(0, 0, 0),
-                 onCLick=None, parent=None):
+                 onClick=None, parent=None):
 
         self.pos = pygame.Vector2(x, y)
         self.width = width
@@ -93,7 +160,7 @@ class Button:
         self.borderColour = borderColour
         self.border = None
 
-        self.onClick = onCLick
+        self.onClick = onClick
 
         self.parent = parent
 
@@ -103,14 +170,17 @@ class Button:
         else:
             pos = self.pos
 
-        if self.borderWidth and self.borderColour:
-            self.border = pygame.Rect(pos.x - self.borderWidth + offset.x,
-                                      pos.y - self.borderWidth + offset.y,
-                                      self.width + self.borderWidth * 2,
-                                      self.height + self.borderWidth * 2)
+        if self.borderColour:
+            self.border = pygame.Rect(pos.x + offset.x,
+                                      pos.y + offset.y,
+                                      self.width,
+                                      self.height)
             pygame.draw.rect(win, self.borderColour, self.border)
 
-        self.rect = pygame.Rect(pos.x + offset.x, pos.y + offset.y, self.width, self.height)
+        self.rect = pygame.Rect(pos.x + self.borderWidth + offset.x,
+                                pos.y + self.borderWidth + offset.y,
+                                self.width - self.borderWidth * 2,
+                                self.height - self.borderWidth * 2)
         pygame.draw.rect(win, self.colour, self.rect)
 
         if self.text:
@@ -123,7 +193,7 @@ class Button:
 
 
 class AccountButton:
-    def __init__(self, x, y, radius, colour, borderWidth=None, borderColour=None, onCLick=None):
+    def __init__(self, x, y, radius, colour, borderWidth=0, borderColour=None, onClick=None):
         self.pos = pygame.Vector2(x, y)
         self.radius = radius
         self.colour = colour
@@ -132,7 +202,7 @@ class AccountButton:
         self.borderColour = borderColour
         self.border = None
 
-        self.onClick = onCLick
+        self.onClick = onClick
 
         self.sprite = pygame.image.load("assets/account.png")
 
@@ -147,7 +217,7 @@ class AccountButton:
 
 
 class Dropdown(Button):
-    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None):
+    def __init__(self, x, y, width, height, colour, borderWidth=0, borderColour=None, text=None, font=None):
         super().__init__(x=x, y=y,
                          width=width,
                          height=height,
@@ -156,11 +226,12 @@ class Dropdown(Button):
                          borderColour=borderColour,
                          text=text,
                          font=font,
-                         onCLick=self.toggleDropdown)
+                         onClick=self.toggleDropdown)
         self.isOpen = False
         self.buttons = []
 
-    def addButton(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+    def addButton(self, x, y, width, height, colour,
+                  borderWidth=0, borderColour=None, text=None, font=None, parent=None):
         button = DropdownOption(x=x, y=y,
                                 width=width,
                                 height=height,
@@ -172,8 +243,8 @@ class Dropdown(Button):
                                 parent=parent)
         self.buttons.append(button)
 
-    def show(self, win):
-        super().show(win)
+    def show(self, win, offset=pygame.Vector2(0, 0)):
+        super().show(win, offset)
         if self.isOpen:
             for button in self.buttons:
                 button.show(win)
@@ -191,7 +262,8 @@ class Dropdown(Button):
 
 
 class DropdownOption(Button):
-    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+    def __init__(self, x, y, width, height, colour,
+                 borderWidth=0, borderColour=None, text=None, font=None, parent=None):
         super().__init__(x=x, y=y,
                          width=width,
                          height=height,
@@ -200,7 +272,7 @@ class DropdownOption(Button):
                          borderColour=borderColour,
                          text=text,
                          font=font,
-                         onCLick=self.selectOption,
+                         onClick=self.selectOption,
                          parent=parent)
 
     def selectOption(self):
@@ -209,12 +281,11 @@ class DropdownOption(Button):
 
 
 class Container:
-    def __init__(self, x, y, displayWidth, displayHeight, containerWidth, containerHeight, colour, borderWidth=None, borderColour=None):
+    def __init__(self, x, y, displayWidth, displayHeight, colour, borderWidth=0, borderColour=None):
         self.pos = pygame.Vector2(x, y)
         self.displayWidth = displayWidth
         self.displayHeight = displayHeight
-        self.containerWidth = containerWidth
-        self.containerHeight = containerHeight
+        self.containerHeight = displayHeight
         self.rect = pygame.Rect(x, y, displayWidth, displayHeight)
         self.colour = colour
 
@@ -229,9 +300,10 @@ class Container:
 
     def addScrollbar(self):
         scrollbarWidth = 20
-        scrollbar = Scrollbar(x=self.pos.x + self.displayWidth,
+        self.displayWidth -= scrollbarWidth
+        scrollbar = Scrollbar(x=self.pos.x + self.displayWidth-self.borderWidth,
                               y=self.pos.y,
-                              width=scrollbarWidth,
+                              width=scrollbarWidth+self.borderWidth,
                               height=self.displayHeight,
                               container=self,
                               colour=self.colour,
@@ -239,7 +311,8 @@ class Container:
                               borderColour=self.borderColour)
         self.scrollbar = scrollbar
 
-    def addButton(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+    def addButton(self, x, y, width, height, colour,
+                  borderWidth=None, borderColour=None, text=None, font=None, parent=None, onClick=None):
         button = Button(x=x,
                         y=y,
                         width=width,
@@ -249,22 +322,29 @@ class Container:
                         borderColour=borderColour,
                         text=text,
                         font=font,
+                        onClick=onClick,
                         parent=parent)
         self.elements.append(button)
 
     def show(self, win):
 
-        self.containerHeight = self.elements[-1].pos.y + self.elements[-1].height
+        if self.elements:
+            self.containerHeight = self.elements[-1].pos.y + self.elements[-1].height
 
         if self.containerHeight > self.displayHeight and not self.scrollbar:
             self.addScrollbar()
 
-        if self.borderWidth and self.borderColour:
-            self.border = pygame.Rect(self.pos.x - self.borderWidth, self.pos.y - self.borderWidth,
-                                      self.displayWidth + self.borderWidth * 2, self.displayHeight + self.borderWidth * 2)
+        if self.borderColour:
+            self.border = pygame.Rect(self.pos.x,
+                                      self.pos.y,
+                                      self.displayWidth,
+                                      self.displayHeight)
             pygame.draw.rect(win, self.borderColour, self.border)
 
-        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.displayWidth, self.displayHeight)
+        self.rect = pygame.Rect(self.pos.x + self.borderWidth,
+                                self.pos.y + self.borderWidth,
+                                self.displayWidth - self.borderWidth * 2,
+                                self.displayHeight - self.borderWidth * 2)
         pygame.draw.rect(win, self.colour, self.rect)
 
         if self.scrollbar:
@@ -278,7 +358,7 @@ class Container:
 
 
 class Scrollbar:
-    def __init__(self, x, y, width, height, container, colour, borderWidth=None, borderColour=None):
+    def __init__(self, x, y, width, height, container, colour, borderWidth=0, borderColour=None):
         self.pos = pygame.Vector2(x, y)
         self.width = width
         self.height = height
@@ -299,15 +379,24 @@ class Scrollbar:
         self.onDrag = self.moveScroll
 
     def show(self, win):
-        if self.borderWidth and self.borderColour:
-            self.border = pygame.Rect(self.pos.x - self.borderWidth, self.pos.y - self.borderWidth,
-                                      self.width + self.borderWidth * 2, self.height + self.borderWidth * 2)
+        if self.borderColour:
+            self.border = pygame.Rect(self.pos.x,
+                                      self.pos.y,
+                                      self.width,
+                                      self.height)
             pygame.draw.rect(win, self.borderColour, self.border)
 
-        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height)
+        self.rect = pygame.Rect(self.pos.x + self.borderWidth,
+                                self.pos.y + self.borderWidth,
+                                self.width - self.borderWidth * 2,
+                                self.height - self.borderWidth * 2)
         pygame.draw.rect(win, self.colour, self.rect)
 
-        pygame.draw.rect(win, self.altColour, (self.pos.x, self.pos.y + self.scrollPos.y, self.scrollWidth, self.scrollHeight))
+        scrollRect = pygame.Rect(self.pos.x + self.borderWidth,
+                                 self.pos.y + self.scrollPos.y + self.borderWidth,
+                                 self.scrollWidth - self.borderWidth * 2,
+                                 self.scrollHeight - self.borderWidth * 2)
+        pygame.draw.rect(win, self.altColour, scrollRect)
 
     def isClicked(self, pos):
         return self.rect.collidepoint(pos)
