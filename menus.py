@@ -12,6 +12,7 @@ class MenuManager:
         self.font = pygame.font.SysFont("Arial", 32)
 
         self.buttons = []
+        self.scrollbars = []
 
     def main_menu(self):
         screenWidth = 800
@@ -44,17 +45,20 @@ class MenuManager:
         quitButton = Button(screenWidth // 2 - buttonWidth // 2,
                             buttonOffsetY + (buttonHeight + buttonSpacing) * 3,
                             buttonWidth, buttonHeight, (160, 160, 160), 2, (0, 0, 0), "Quit", self.font,
-                            lambda: quitGame())
+                            quitGame)
 
         accountButton = AccountButton(screenWidth - padding - accountButtonRadius,
                                       padding + accountButtonRadius, accountButtonRadius, (160, 160, 160), 2, (0, 0, 0))
 
         dropdown = Dropdown(100, 100, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 1", self.font)
-        dropdown.addButton(100, 150, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 1", self.font, parent=dropdown)
-        dropdown.addButton(100, 200, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 2", self.font, parent=dropdown)
-        dropdown.addButton(100, 250, 150, 50, (160, 160, 160), 2, (0, 0, 0), "Option 3", self.font, parent=dropdown)
+        dropdown.addButton(100, 150, 150, 40, (100, 100, 100), 2, (0, 0, 0), "Option 1", self.font, parent=dropdown)
+        dropdown.addButton(100, 190, 150, 40, (100, 100, 100), 2, (0, 0, 0), "Option 2", self.font, parent=dropdown)
+        dropdown.addButton(100, 230, 150, 40, (100, 100, 100), 2, (0, 0, 0), "Option 3", self.font, parent=dropdown)
+
+        scrollbar = Scrollbar(600, 100, 20, 400, (160, 160, 160), 2, (0, 0, 0))
 
         self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton, dropdown]
+        self.scrollbars = [scrollbar]
 
 
 class Button:
@@ -155,3 +159,44 @@ class DropdownOption(Button):
     def selectOption(self):
         self.parent.text = self.text
         self.parent.toggleDropdown()
+
+
+class Scrollbar:
+    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None):
+        self.pos = pygame.Vector2(x, y)
+        self.width = width
+        self.height = height
+        self.rect = pygame.Rect(x, y, width, height)
+        self.colour = colour
+        self.altColour = (colour[0] + 20, colour[1] + 20, colour[2] + 20)
+
+        self.containerSize = 500
+
+        self.scrollPos = pygame.Vector2(0, 0)
+        self.scrollWidth = width
+        self.scrollHeight = 40
+
+        self.borderWidth = borderWidth
+        self.borderColour = borderColour
+        self.border = None
+
+        self.onDrag = self.moveScroll
+
+    def show(self, win):
+        if self.borderWidth and self.borderColour:
+            self.border = pygame.Rect(self.pos.x - self.borderWidth, self.pos.y - self.borderWidth,
+                                      self.width + self.borderWidth * 2, self.height + self.borderWidth * 2)
+            pygame.draw.rect(win, self.borderColour, self.border)
+
+        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height)
+        pygame.draw.rect(win, self.colour, self.rect)
+
+        pygame.draw.rect(win, self.altColour, (self.pos.x, self.pos.y + self.scrollPos.y, self.scrollWidth, self.scrollHeight))
+
+    def isClicked(self, pos):
+        return self.rect.collidepoint(pos)
+
+    def moveScroll(self, pos):
+        self.scrollPos = pos - self.pos - pygame.Vector2(0, self.scrollHeight / 2)
+        self.scrollPos.y = max(0, min(self.scrollPos.y, self.height - self.scrollHeight))
+
