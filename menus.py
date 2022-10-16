@@ -57,19 +57,29 @@ class MenuManager:
                                       padding + accountButtonRadius, accountButtonRadius, (160, 160, 160), 2, boarderColour)
 
         dropdown = Dropdown(100, 100, 150, 50, buttonColour, 2, boarderColour, "Option 1", self.font)
-        dropdown.addButton(100, 150, 150, 40, dropdownColour, 2, boarderColour, "Option 1", self.font, parent=dropdown)
-        dropdown.addButton(100, 190, 150, 40, dropdownColour, 2, boarderColour, "Option 2", self.font, parent=dropdown)
-        dropdown.addButton(100, 230, 150, 40, dropdownColour, 2, boarderColour, "Option 3", self.font, parent=dropdown)
+        dropdown.addButton(0, 50, 150, 40, dropdownColour, 2, boarderColour, "Option 1", self.font, parent=dropdown)
+        dropdown.addButton(0, 90, 150, 40, dropdownColour, 2, boarderColour, "Option 2", self.font, parent=dropdown)
+        dropdown.addButton(0, 130, 150, 40, dropdownColour, 2, boarderColour, "Option 3", self.font, parent=dropdown)
 
         self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton, dropdown]
 
         testContainer = Container(100, 100, 300, 400, 300, 800, containerColour, 2, boarderColour)
-        testContainer.addScrollbar()
+        for i in range(21):
+            testContainer.addButton(75, i * 50, 150, 40, buttonColour, 2, boarderColour, f"Button {i}", self.font, parent=testContainer)
+
+        coverContainer1 = Button(100, 0, 300, 98, (51, 51, 51), 0)
+        coverContainer2 = Button(100, 502, 300, 98, (51, 51, 51), 0)
+
+        self.buttons = [coverContainer1, coverContainer2]
         self.containers = [testContainer]
 
 
 class Button:
-    def __init__(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, textColour=(0, 0, 0), onCLick=None):
+    def __init__(self, x, y, width, height, colour,
+                 borderWidth=None, borderColour=None,
+                 text=None, font=None, textColour=(0, 0, 0),
+                 onCLick=None, parent=None):
+
         self.pos = pygame.Vector2(x, y)
         self.width = width
         self.height = height
@@ -85,18 +95,28 @@ class Button:
 
         self.onClick = onCLick
 
-    def show(self, win):
+        self.parent = parent
+
+    def show(self, win, offset=pygame.Vector2(0, 0)):
+        if self.parent is not None:
+            pos = self.pos + self.parent.pos
+        else:
+            pos = self.pos
+
         if self.borderWidth and self.borderColour:
-            self.border = pygame.Rect(self.pos.x - self.borderWidth, self.pos.y - self.borderWidth,
-                                      self.width + self.borderWidth * 2, self.height + self.borderWidth * 2)
+            self.border = pygame.Rect(pos.x - self.borderWidth + offset.x,
+                                      pos.y - self.borderWidth + offset.y,
+                                      self.width + self.borderWidth * 2,
+                                      self.height + self.borderWidth * 2)
             pygame.draw.rect(win, self.borderColour, self.border)
 
-        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.width, self.height)
+        self.rect = pygame.Rect(pos.x + offset.x, pos.y + offset.y, self.width, self.height)
         pygame.draw.rect(win, self.colour, self.rect)
 
         if self.text:
             text = self.font.render(self.text, True, self.textColour)
-            win.blit(text, (self.pos.x + self.width / 2 - text.get_width() / 2, self.pos.y + self.height / 2 - text.get_height() / 2))
+            win.blit(text, (pos.x + self.width / 2 - text.get_width() / 2 + offset.x,
+                            pos.y + self.height / 2 - text.get_height() / 2 + offset.y))
 
     def isClicked(self, pos):
         return self.rect.collidepoint(pos)
@@ -180,8 +200,8 @@ class DropdownOption(Button):
                          borderColour=borderColour,
                          text=text,
                          font=font,
-                         onCLick=self.selectOption)
-        self.parent = parent
+                         onCLick=self.selectOption,
+                         parent=parent)
 
     def selectOption(self):
         self.parent.text = self.text
@@ -195,6 +215,7 @@ class Container:
         self.displayHeight = displayHeight
         self.containerWidth = containerWidth
         self.containerHeight = containerHeight
+        self.rect = pygame.Rect(x, y, displayWidth, displayHeight)
         self.colour = colour
 
         self.borderWidth = borderWidth
@@ -202,6 +223,8 @@ class Container:
         self.border = None
 
         self.scrollbar = None
+        self.elements = []
+        self.offset = pygame.Vector2(0, 0)
 
 
     def addScrollbar(self):
@@ -210,26 +233,52 @@ class Container:
                               y=self.pos.y,
                               width=scrollbarWidth,
                               height=self.displayHeight,
-                              containerSize=self.containerHeight,
+                              container=self,
                               colour=self.colour,
                               borderWidth=2,
                               borderColour=self.borderColour)
         self.scrollbar = scrollbar
 
+    def addButton(self, x, y, width, height, colour, borderWidth=None, borderColour=None, text=None, font=None, parent=None):
+        button = Button(x=x,
+                        y=y,
+                        width=width,
+                        height=height,
+                        colour=colour,
+                        borderWidth=borderWidth,
+                        borderColour=borderColour,
+                        text=text,
+                        font=font,
+                        parent=parent)
+        self.elements.append(button)
+
     def show(self, win):
+
+        self.containerHeight = self.elements[-1].pos.y + self.elements[-1].height
+
+        if self.containerHeight > self.displayHeight and not self.scrollbar:
+            self.addScrollbar()
+
         if self.borderWidth and self.borderColour:
             self.border = pygame.Rect(self.pos.x - self.borderWidth, self.pos.y - self.borderWidth,
                                       self.displayWidth + self.borderWidth * 2, self.displayHeight + self.borderWidth * 2)
             pygame.draw.rect(win, self.borderColour, self.border)
 
-        pygame.draw.rect(win, self.colour, (self.pos.x, self.pos.y, self.displayWidth, self.displayHeight))
+        self.rect = pygame.Rect(self.pos.x, self.pos.y, self.displayWidth, self.displayHeight)
+        pygame.draw.rect(win, self.colour, self.rect)
 
         if self.scrollbar:
             self.scrollbar.show(win)
 
+        for element in self.elements:
+            x = self.pos.x + element.pos.x + self.offset.x
+            y = self.pos.y + element.pos.y + self.offset.y
+            if self.rect.colliderect((x, y, element.width, element.height)):
+                element.show(win, offset=self.offset)
+
 
 class Scrollbar:
-    def __init__(self, x, y, width, height, containerSize, colour, borderWidth=None, borderColour=None):
+    def __init__(self, x, y, width, height, container, colour, borderWidth=None, borderColour=None):
         self.pos = pygame.Vector2(x, y)
         self.width = width
         self.height = height
@@ -237,11 +286,11 @@ class Scrollbar:
         self.colour = colour
         self.altColour = (colour[0] + 20, colour[1] + 20, colour[2] + 20)
 
-        self.containerSize = containerSize
+        self.container = container
 
         self.scrollPos = pygame.Vector2(0, 0)
         self.scrollWidth = width
-        self.scrollHeight = (self.height / self.containerSize) * self.height
+        self.scrollHeight = (self.height / self.container.containerHeight) * self.height
 
         self.borderWidth = borderWidth
         self.borderColour = borderColour
@@ -266,3 +315,10 @@ class Scrollbar:
     def moveScroll(self, pos):
         self.scrollPos = pos - self.pos - pygame.Vector2(0, self.scrollHeight / 2)
         self.scrollPos.y = max(0, min(self.scrollPos.y, self.height - self.scrollHeight))
+
+        additionalSpace = self.container.containerHeight - self.container.displayHeight
+        scrollMoveAmount = self.container.displayHeight - self.scrollHeight
+        if scrollMoveAmount > 0:
+            self.container.offset.y = -additionalSpace / scrollMoveAmount * self.scrollPos.y
+        else:
+            self.container.offset.y = self.container.containerHeight

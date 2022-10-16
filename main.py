@@ -15,10 +15,12 @@ activeScrollbar = None
 def update():
     win.fill((51, 51, 51))
 
-    for button in menu.buttons:
-        button.show(win)
     for container in menu.containers:
         container.show(win)
+
+    for button in menu.buttons:
+        button.show(win)
+
 
     pygame.display.update()
 
@@ -47,6 +49,9 @@ while run:
                     if container.scrollbar:
                         if container.scrollbar.isClicked(pos):
                             activeScrollbar = container.scrollbar
+                    for element in container.elements:
+                        if element.isClicked(pos) and element.onClick:
+                            element.onClick()
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
