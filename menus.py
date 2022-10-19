@@ -10,8 +10,23 @@ class MenuManager:
     def __init__(self):
         self.font = pygame.font.SysFont("Arial", 32)
 
-        self.buttons = []
-        self.containers = []
+        self.elements = []
+
+    def testing(self):
+        testContainer = Container(100, 100, 500, 500,
+                                  (160, 160, 160), 2, 20,
+                                  padding=10)
+
+        for i in range(5):
+            testButton = Button(0, i * 110, 150, 100,
+                                (150, 150, 150), 2, (0, 0, 0),
+                                "Test Button", (0, 0, 0), self.font,
+                                horizontalAlignment="center",
+                                onClick=quitGame)
+
+            testContainer.addElement(testButton)
+
+        self.elements = [testContainer]
 
     def mainMenu(self):
         self.buttons = []
@@ -32,7 +47,7 @@ class MenuManager:
 
         # colours
         buttonColour = (160, 160, 160)
-        boarderColour = (0, 0, 0)
+        borderColour = (0, 0, 0)
 
         heightOfButtons = (buttonHeight * numberOfButtons) + (buttonSpacing * (numberOfButtons - 1))
         buttonOffsetY = (screenHeight - heightOfButtons) // 2
@@ -43,7 +58,7 @@ class MenuManager:
                             buttonHeight,
                             buttonColour,
                             borderWidth,
-                            boarderColour,
+                            borderColour,
                             "Play",
                             self.font,
                             onClick=self.levelSelect)
@@ -54,7 +69,7 @@ class MenuManager:
                                    buttonHeight,
                                    buttonColour,
                                    borderWidth,
-                                   boarderColour,
+                                   borderColour,
                                    "Leaderboard",
                                    self.font,
                                    onClick=None)
@@ -65,7 +80,7 @@ class MenuManager:
                                 buttonHeight,
                                 buttonColour,
                                 borderWidth,
-                                boarderColour,
+                                borderColour,
                                 "Settings",
                                 self.font)
 
@@ -75,7 +90,7 @@ class MenuManager:
                             buttonHeight,
                             buttonColour,
                             borderWidth,
-                            boarderColour,
+                            borderColour,
                             "Quit",
                             self.font,
                             onClick=quitGame)
@@ -85,7 +100,7 @@ class MenuManager:
                                       accountButtonRadius,
                                       buttonColour,
                                       borderWidth,
-                                      boarderColour)
+                                      borderColour)
 
         self.buttons = [playButton, leaderboardButton, settingsButton, quitButton, accountButton]
 
@@ -97,7 +112,7 @@ class MenuManager:
 
         # colours
         buttonColour = (160, 160, 160)
-        boarderColour = (0, 0, 0)
+        borderColour = (0, 0, 0)
         borderWidth = 2
         containerColour = (160, 160, 160)
 
@@ -109,26 +124,28 @@ class MenuManager:
                                          screenHeight - 100,
                                          containerColour,
                                          borderWidth,
-                                         boarderColour)
+                                         graphContainerMargin,
+                                         borderColour)
 
         graphSelectContainer = Container(screenWidth // 2 - borderWidth // 2, 100,
                                          screenWidth // 2 + borderWidth // 2,
                                          screenHeight - 100,
                                          containerColour,
                                          borderWidth,
-                                         boarderColour)
+                                         graphContainerMargin,
+                                         borderColour)
 
-        graphCount = 5
-        graphHeight = (graphSelectContainer.displayHeight - graphContainerMargin * 2) // 3
+        graphCount = 3
+        graphHeight = (graphSelectContainer.displayHeight - graphContainerMargin * 2) // graphCount
 
         for i in range(graphCount):
-            graphSelectContainer.addGraph(graphContainerMargin,
-                                          graphContainerMargin + i * (graphHeight + graphContainerMargin//4),
-                                          graphSelectContainer.displayWidth - graphContainerMargin * 2,
-                                          graphHeight - graphContainerMargin//2,
+            graphSelectContainer.addGraph(0,
+                                          0 + i * graphSelectContainer.displayHeight,
+                                          graphSelectContainer.displayWidth,
+                                          graphSelectContainer.displayHeight,
                                           graphColour,
                                           borderWidth,
-                                          boarderColour)
+                                          borderColour)
 
         graphSelectContainer.elements[0].loadData([10, 15, 10, 20, 32, 10, 21, 2, 10])
 
@@ -143,7 +160,7 @@ class MenuManager:
     #
     #     # colours
     #     buttonColour = (160, 160, 160)
-    #     boarderColour = (0, 0, 0)
+    #     borderColour = (0, 0, 0)
     #     borderWidth = 2
     #     containerColour = (160, 160, 160)
     #
@@ -152,44 +169,78 @@ class MenuManager:
     #                                      screenHeight-100,
     #                                      containerColour,
     #                                      borderWidth,
-    #                                      boarderColour)
+    #                                      borderColour)
     #     graphSelectContainer = Container(screenWidth//2 - borderWidth//2, 100,
     #                                      screenWidth//2 + borderWidth//2,
     #                                      screenHeight-100,
     #                                      containerColour,
     #                                      borderWidth,
-    #                                      boarderColour)
+    #                                      borderColour)
     #
     #     self.buttons = []
     #     self.containers = [levelSelectContainer, graphSelectContainer]
 
 
-class Button:
-    def __init__(self, x, y, width, height, colour,
+class RectangleObject:
+    def __init__(self, x, y, width, height,
+                 colour,
                  borderWidth=0, borderColour=None,
-                 text=None, font=None, textColour=(0, 0, 0),
-                 onClick=None, parent=None):
+                 text=None, textColour=None, font=None,
+                 margin=0, padding=0,
+                 horizontalAlignment="left",
+                 onClick=None,
+                 parent=None, children=None):
 
         self.pos = pygame.Vector2(x, y)
         self.width = width
         self.height = height
         self.rect = pygame.Rect(x, y, width, height)
+
         self.colour = colour
-        self.text = text
-        self.font = font
-        self.textColour = textColour
 
         self.borderWidth = borderWidth
         self.borderColour = borderColour
         self.border = None
 
+        self.text = text
+        self.textColour = textColour
+        self.font = font
+
+        self.margin = margin
+        self.padding = padding
+
+        self.horizontalAlignment = horizontalAlignment
+
         self.onClick = onClick
 
         self.parent = parent
+        self.children = children
+
+    def checkPadding(self):
+        if self.parent:
+            self.width = min(self.width, self.parent.width - self.parent.padding * 2)
+            self.height = min(self.height, self.parent.height - self.parent.padding * 2)
+
+            self.pos.x = max(self.pos.x, self.parent.padding)
+            self.pos.x = min(self.pos.x, self.parent.width - self.parent.padding)
+
+            self.pos.y = max(self.pos.y, self.parent.padding)
+            self.pos.y = min(self.pos.y, self.parent.height - self.parent.padding)
+
+    def checkAlignment(self):
+        if self.parent:
+            if self.horizontalAlignment == "left":
+                self.pos.x = 0
+            elif self.horizontalAlignment == "right":
+                self.pos.x = self.parent.width - self.width
+            elif self.horizontalAlignment == "center":
+                self.pos.x = self.parent.width // 2 - self.width // 2
 
     def show(self, win, offset=pygame.Vector2(0, 0)):
-        if self.parent is not None:
-            pos = self.pos + self.parent.pos
+        if self.parent:
+            pos = self.parent.pos + self.pos
+            self.checkAlignment()
+            self.checkPadding()
         else:
             pos = self.pos
 
@@ -208,8 +259,40 @@ class Button:
 
         if self.text:
             text = self.font.render(self.text, True, self.textColour)
-            win.blit(text, (pos.x + self.width / 2 - text.get_width() / 2 + offset.x,
-                            pos.y + self.height / 2 - text.get_height() / 2 + offset.y))
+            textRect = text.get_rect()
+            textRect.center = self.rect.center
+            win.blit(text, textRect)
+
+    def isClicked(self, mousePos):
+        return self.rect.collidepoint(mousePos)
+
+    def checkChildrenPressed(self, mousePos):
+        if self.children:
+            for child in self.children:
+                if child.onClick and child.isClicked(mousePos):
+                    child.onClick()
+
+
+class Button(RectangleObject):
+    def __init__(self, x, y, width, height,
+                 colour,
+                 borderWidth=0, borderColour=None,
+                 text=None, textColour=(0, 0, 0), font=None,
+                 margin=0, padding=0,
+                 horizontalAlignment="left",
+                 onClick=None,
+                 parent=None):
+        super().__init__(x, y, width, height,
+                         colour,
+                         borderWidth, borderColour,
+                         text, textColour, font,
+                         margin, padding,
+                         horizontalAlignment,
+                         onClick,
+                         parent)
+
+    def show(self, win, offset=pygame.Vector2(0, 0)):
+        super().show(win, offset)
 
     def isClicked(self, pos):
         return self.rect.collidepoint(pos)
@@ -302,41 +385,59 @@ class DropdownOption(Button):
         self.parent.toggleDropdown()
 
 
-class Container:
-    def __init__(self, x, y, displayWidth, displayHeight, colour, borderWidth=0, borderColour=None):
-        self.pos = pygame.Vector2(x, y)
-        self.displayWidth = displayWidth
-        self.displayHeight = displayHeight
-        self.containerHeight = displayHeight
-        self.rect = pygame.Rect(x, y, displayWidth, displayHeight)
-        self.colour = colour
+class Container(RectangleObject):
+    def __init__(self, x, y, displayWidth, displayHeight,
+                 colour,
+                 borderWidth=0, borderColour=None,
+                 text=None, textColour=None, font=None,
+                 margin=0, padding=0,
+                 horizontalAlignment="left",
+                 onClick=None,
+                 parent=None, children=None):
 
-        self.borderWidth = borderWidth
-        self.borderColour = borderColour
-        self.border = None
+        super().__init__(x, y, displayWidth, displayHeight,
+                         colour,
+                         borderWidth, borderColour,
+                         text, textColour, font,
+                         margin, padding,
+                         horizontalAlignment,
+                         onClick,
+                         parent, children)
 
+        self.containerHeight = 0
         self.scrollbar = None
-        self.elements = []
         self.offset = pygame.Vector2(0, 0)
+
+    def addElement(self, element):
+        if self.children:
+            self.children.append(element)
+        else:
+            self.children = [element]
+        element.parent = self
 
     def addScrollbar(self):
         scrollbarWidth = 20
-        self.displayWidth -= scrollbarWidth
-        scrollbar = Scrollbar(x=self.pos.x + self.displayWidth - self.borderWidth,
+        self.width -= scrollbarWidth
+        scrollbar = Scrollbar(x=self.pos.x + self.width - self.borderWidth,
                               y=self.pos.y,
                               width=scrollbarWidth + self.borderWidth,
-                              height=self.displayHeight,
+                              height=self.height,
                               container=self,
                               colour=self.colour,
                               borderWidth=2,
                               borderColour=self.borderColour)
         self.scrollbar = scrollbar
 
-        for element in self.elements:
-            element.width -= scrollbarWidth
+        for child in self.children:
+            child.width -= scrollbarWidth
 
     def addButton(self, x, y, width, height, colour,
                   borderWidth=None, borderColour=None, text=None, font=None, parent=None, onClick=None):
+        x = max(x, x + self.margin)
+        x = min(x, self.displayWidth - self.margin)
+        y = max(y, y + self.margin)
+        y = min(y, self.displayHeight - self.margin)
+
         button = Button(x=x,
                         y=y,
                         width=width,
@@ -351,6 +452,17 @@ class Container:
         self.elements.append(button)
 
     def addGraph(self, x, y, width, height, colour, borderWidth=None, borderColour=None):
+
+        x = max(x, self.margin)
+        x = min(x, self.displayWidth - self.margin)
+        y = max(y, self.margin)
+        y = min(y, self.displayHeight - self.margin)
+
+        width = max(width, self.margin * 2)
+        width = min(width, self.displayWidth - self.margin * 2)
+        height = max(height, self.margin * 2)
+        height = min(height, self.displayHeight - self.margin * 2)
+
         graph = Histogram(x=x,
                           y=y,
                           width=width,
@@ -361,35 +473,23 @@ class Container:
                           parent=self)
         self.elements.append(graph)
 
-    def show(self, win):
+    def show(self, win, offset=pygame.Vector2(0, 0)):
+        super().show(win, offset)
 
-        if self.elements:
-            self.containerHeight = self.elements[-1].pos.y + self.elements[-1].height
+        if self.children:
+            self.containerHeight = self.children[-1].pos.y + self.children[-1].height + self.padding
 
-        if self.containerHeight > self.displayHeight and not self.scrollbar:
+        if self.containerHeight > self.height and not self.scrollbar:
             self.addScrollbar()
-
-        if self.borderColour:
-            self.border = pygame.Rect(self.pos.x,
-                                      self.pos.y,
-                                      self.displayWidth,
-                                      self.displayHeight)
-            pygame.draw.rect(win, self.borderColour, self.border)
-
-        self.rect = pygame.Rect(self.pos.x + self.borderWidth,
-                                self.pos.y + self.borderWidth,
-                                self.displayWidth - self.borderWidth * 2,
-                                self.displayHeight - self.borderWidth * 2)
-        pygame.draw.rect(win, self.colour, self.rect)
 
         if self.scrollbar:
             self.scrollbar.show(win)
 
-        for element in self.elements:
-            x = self.pos.x + element.pos.x + self.offset.x
-            y = self.pos.y + element.pos.y + self.offset.y
-            if self.rect.colliderect((x, y, element.width, element.height)):
-                element.show(win, offset=self.offset)
+        for child in self.children:
+            x = self.pos.x + child.pos.x + self.offset.x
+            y = self.pos.y + child.pos.y + self.offset.y
+            if self.rect.colliderect((x, y, child.width, child.height)):
+                child.show(win, offset=self.offset)
 
 
 class Scrollbar:
@@ -440,8 +540,8 @@ class Scrollbar:
         self.scrollPos = pos - self.pos - pygame.Vector2(0, self.scrollHeight / 2)
         self.scrollPos.y = max(0, min(self.scrollPos.y, self.height - self.scrollHeight))
 
-        additionalSpace = self.container.containerHeight - self.container.displayHeight
-        scrollMoveAmount = self.container.displayHeight - self.scrollHeight
+        additionalSpace = self.container.containerHeight - self.container.height
+        scrollMoveAmount = self.container.height - self.scrollHeight
         if scrollMoveAmount > 0:
             self.container.offset.y = -additionalSpace / scrollMoveAmount * self.scrollPos.y
         else:

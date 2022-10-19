@@ -8,19 +8,16 @@ win = pygame.display.set_mode((800, 800), pygame.NOFRAME)
 pygame.display.set_caption("Test")
 
 menu = MenuManager()
-menu.mainMenu()
+menu.testing()
 
 activeScrollbar = None
+
 
 def update():
     win.fill((51, 51, 51))
 
-    for container in menu.containers:
-        container.show(win)
-
-    for button in menu.buttons:
-        button.show(win)
-
+    for element in menu.elements:
+        element.show(win)
 
     pygame.display.update()
 
@@ -39,19 +36,18 @@ while run:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                for button in menu.buttons:
-                    if button.isClicked(pos) and button.onClick:
-                        button.onClick()
+                for element in menu.elements:
+                    # checks if each root element is clicked
+                    if element.onClick and element.isClicked(pos):
+                        element.onClick()
 
-                    if isinstance(button, Dropdown):
-                        button.checkButtons(pos)
-                for container in menu.containers:
-                    if container.scrollbar:
-                        if container.scrollbar.isClicked(pos):
-                            activeScrollbar = container.scrollbar
-                    for element in container.elements:
-                        if element.isClicked(pos) and element.onClick:
-                            element.onClick()
+                    if element.scrollbar:
+                        if element.scrollbar.isClicked(pos):
+                            activeScrollbar = element.scrollbar
+
+                    # checks if each child element is clicked
+                    element.checkChildrenPressed(pos)
+
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:
